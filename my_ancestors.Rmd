@@ -1,0 +1,199 @@
+---
+title: "My Ancestors"
+author: "enersto"
+date: "2018年8月31日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This file inspires from the [package radmixture](https://github.com/wegene-llc/radmixture), which is an ancestors calculator tool comtaining public calculator data. But the package only provides unvisible and single results. This's why I write the file to make a cut short to find your ancestor infomation visiblely.
+
+This file fits for those people:
+
+* learn some things about R and Rmarkdown;
+
+* get personal gene data;
+
+* want to know more ancestors information in your gene
+
+## data import
+### reliable package
+```{r}
+library(radmixture)
+library(data.table)
+library(ggplot2)
+library(ggthemes)
+```
+
+### calculator data
+
+If you don't get calculator data yet, downloan with the "#"line.
+
+
+```{r}
+
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/globe4.alleles.RData',destfile = 'your_path/globe4.alleles.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/globe4.4.F.RData',destfile = 'your_path/globe4.4.F.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/K12b.12.F.RData',destfile = 'your_path/K12b.12.F.RData.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/K12b.alleles.RData',destfile = 'your_path/K12b.alleles.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/K7b.7.F.RData',destfile = 'your_path/K7b.7.F.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/K7b.alleles.RData',destfile = 'your_path/K7b.alleles.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/e11.11.F.RData',destfile = 'your_path/e11.11.F.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/e11.alleles.RData',destfile = 'your_path/e11.alleles.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/globe13.13.F.RData',destfile = 'your_path/globe13.13.F.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/globe13.alleles.RData',destfile = 'your_path/globe13.alleles.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/world9.9.F.RData',destfile = 'your_path/world9.9.F.RData')
+#download.file(url = 'https://github.com/wegene-llc/radmixture/raw/master/data/world9.alleles.RData',destfile = 'your_path/world9.alleles.RData')
+
+load('your_path/globe4.alleles.RData')
+load('your_path/globe4.4.F.RData')
+load('your_path/K12b.12.F.RData.RData')
+load('your_path/K12b.alleles.RData')
+load('your_path/K7b.7.F.RData')
+load('your_path/K7b.alleles.RData')
+load('your_path/e11.11.F.RData')
+load('your_path/e11.alleles.RData')
+load('your_path/globe13.13.F.RData')
+load('your_path/globe13.alleles.RData')
+load('your_path/world9.9.F.RData')
+load('your_path/world9.alleles.RData')
+```
+
+### personal data
+Change file path in the Rmd file like this:
+
+genotype <- fread("your_path/your_file.txt")
+
+```{r echo=FALSE}
+genotype <- fread("your_path/your_file.txt")
+```
+
+##calculater results
+### Use E11
+
+A good calculator for east asian people.
+
+```{r echo=FALSE, fig.height=4, fig.width=11, message=FALSE, warning=FALSE}
+# Use E11
+res <- tfrdpub(genotype, 11, e11.alleles, e11.11.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "E11")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette) + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+  
+```
+
+### Use world9
+```{r echo=FALSE,fig.height=4, fig.width=11, message=FALSE, warning=FALSE}
+
+res <- tfrdpub(genotype, 9, world9.alleles, world9.9.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "World9")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette) + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+```
+
+
+### Use K4
+```{r echo=FALSE,fig.height=4, fig.width=11, message=FALSE, warning=FALSE}
+
+res <- tfrdpub(genotype, 4, globe4.alleles, globe4.4.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "K4")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette) + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+```
+
+### Use K7b
+```{r echo=FALSE,fig.height=4, fig.width=11, message=FALSE, warning=FALSE}
+
+res <- tfrdpub(genotype, 7, K7b.alleles, K7b.7.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "K7b")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette) + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+```
+
+### Use K12b
+```{r echo=FALSE, fig.height=4, fig.width=11,message=FALSE, warning=FALSE}
+
+res <- tfrdpub(genotype, 12, K12b.alleles, K12b.12.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "K12b")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette)  + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+```
+
+### Use K13
+```{r echo=FALSE,fig.height=4, fig.width=11, message=FALSE, warning=FALSE}
+
+res <- tfrdpub(genotype, 13, globe13.alleles, globe13.13.F)
+ances <- fFixQN(res$g, res$q, res$f, tol = 1e-4, method = "BR", pubdata = "K13")
+result <- ances$q
+result <- as.data.frame(t(result))
+result$components <- rownames(result)
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+               "#F0E442", "#0072B2", "#CCFFFF","#99FFCC",
+               "#D55E00", "#CC79A7","#CCFFCC","#FFCC99",
+               "#FF9933","#FFCCCC","#CC99CC","#99CCFF")
+ggplot(result, aes(x="", y=result, fill=components))+
+  geom_bar(width = 0.25, stat = "identity")+ 
+  scale_fill_manual(values=cbPalette) + theme_wsj(color = 'gray') + theme(legend.position="bottom") +
+  geom_text(aes(label=ifelse(result > 0.2,sprintf("%1.2f%%", 100*result) ,'')),position=position_stack())+
+  coord_flip() 
+```
+
